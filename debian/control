@@ -1,0 +1,15 @@
+Source: araneus-rngd
+Maintainer: eduID developers <eduid-dev@SEGATE.SUNET.SE>
+Section: python
+Priority: optional
+Build-Depends: debhelper (>= 7), python
+Standards-Version: 3.9.4
+XS-Python-Version: current
+
+Package: araneus-rngd
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-usb
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: Read random data from an Araneus Alea I and feed it to the Linux kernel.
+ The Araneus Alea I is a USB based hardware random number generator.

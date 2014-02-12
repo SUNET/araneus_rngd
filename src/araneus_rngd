@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2014 SUNET. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification, are
+# permitted provided that the following conditions are met:
+#
+#    1. Redistributions of source code must retain the above copyright notice, this list of
+#       conditions and the following disclaimer.
+#
+#    2. Redistributions in binary form must reproduce the above copyright notice, this list
+#       of conditions and the following disclaimer in the documentation and/or other materials
+#       provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY SUNET ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+# FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUNET OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# The views and conclusions contained in the software and documentation are those of the
+# authors and should not be interpreted as representing official policies, either expressed
+# or implied, of SUNET.
+#
+"""
+Simple program to read randomness from an Araneus Alea I and
+feed it to the Linux kernel.
+
+Use --debug to get simple debug output.
+
+Copyright (c) 2014 SUNET. All rights reserved.
+See the source file for full license statement.
+"""
+
+import os
+import usb
+import sys
+import time
+import fcntl
+import struct
+
+#define RNDADDENTROPY   _IOW( 'R', 0x03, int [2] )
+RNDADDENTROPY = 0x40085203
+SLEEP_TIME = 11
+RATIO = 0.1
+READ_BYTES = 64
+
+ARANEUS_VID = 0x12D8
+ARANEUS_PID = 0x1
+
+
+def open_device():
+    """
+    Find the first Araneus Alea I device on the USB bus and return a handle.
+    """
+    busses = usb.busses()
+
+    alea = None
+
+    for bus in busses:
+        devices = bus.devices
+    	for dev in devices:
+	   if dev.idVendor == ARANEUS_VID and dev.idProduct == ARANEUS_PID:
+        	alea = dev
+
+    dh = alea.open()
+    dh.claimInterface(0)
+    return dh
+
+
+def read_random(dh, num_bytes = READ_BYTES):
+    """
+    Read num_bytes of data from the hardware RNG.
+
+    For the Araneus Alea I, this is done with a plain USB bulk read from the first endpoint.
+    """
+    res = ''.join([chr(x) for x in dh.bulkRead(0x81, num_bytes, 10000)])
+    return res
+
+
+def feed_random(data, ratio=RATIO):
+    """
+    Feed the Linux kernel with the random data collected from the hardware RNG.
+
+    The ioctl expects a data payload according to this C struct :
+
+       struct rand_pool_info {
+          int     entropy_count;
+          int     buf_size;
+          __u32   buf[0];
+       };
+    """
+    fd = os.open("/dev/random", os.O_WRONLY)
+    payload = struct.pack('ii{:}s'.format(len(data)), ratio * len(data), len(data), data)
+    fcntl.ioctl(fd, RNDADDENTROPY, payload)
+    os.close(fd)
+
+
+def main(debug=False):
+    """
+    Continuously read random data from hardware device, and feed it to the Linux kernel.
+    """
+    alea = open_device()
+    while True:
+        data = read_random(alea)
+        if debug:
+            print("{!s} -- Read {} bytes from device".format(time.ctime(), len(data)))
+        feed_random(data)
+        time.sleep(SLEEP_TIME)
+
+
+if __name__ == '__main__':
+    debug = False
+    if len(sys.argv) >= 2 and sys.argv[1] == '--debug':
+        debug = True
+
+    if main(debug):
+        sys.exit(0)
+    sys.exit(1)

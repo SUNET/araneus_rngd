@@ -1,0 +1,19 @@
+description "Araneus Alea I rngd"
+respawn
+umask 077
+
+start on (local-filesystems)
+stop on runlevel [!12345]
+
+pre-start script
+    ARANEUS_RNGD_ARGS=""
+    [ ! -f /etc/default/araneus-rngd ] && { stop; exit 0; }
+
+    . /etc/default/araneus-rngd
+
+    [ -z "$ENABLED" ] && { stop; exit 0; }
+    true
+end script
+
+exec start-stop-daemon --start --background --exec /usr/sbin/araneus_rngd -- \
+     $ARANEUS_RNGD_ARGS
