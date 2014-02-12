@@ -1,0 +1,4 @@
+Simple utility to read random data from an Araneus Alea I and feed
+it to the Linux kernel.
+
+The Araneus Alea I is a USB based hardware random number generator.
