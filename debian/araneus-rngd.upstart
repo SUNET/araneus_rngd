@@ -7,6 +7,7 @@ stop on runlevel [!12345]
 
 pre-start script
     ARANEUS_RNGD_ARGS=""
+    PIDFILE=/var/run/araneus_rngd.pid
     [ ! -f /etc/default/araneus-rngd ] && { stop; exit 0; }
 
     . /etc/default/araneus-rngd
@@ -15,5 +16,6 @@ pre-start script
     true
 end script
 
-exec start-stop-daemon --start --background --exec /usr/sbin/araneus_rngd -- \
+exec start-stop-daemon --start --pidfile $PIDFILE --make-pidfile \
+      --background --exec /usr/sbin/araneus_rngd -- \
      $ARANEUS_RNGD_ARGS

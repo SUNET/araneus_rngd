@@ -1,3 +1,11 @@
+araneus-rngd (0.2.0~ppa1~saucy1) saucy; urgency=low
+
+  * Collect more entropy, faster.
+  * Try to improve upstart-script.
+  * Semantic versioning.
+
+ -- Fredrik Thulin <fredrik@thulin.net>  Tue, 18 Feb 2014 09:54:12 +0100
+
 araneus-rngd (0.1~ppa1~saucy1) saucy; urgency=low
 
   * Make PPA.

@@ -45,8 +45,8 @@ import struct
 
 #define RNDADDENTROPY   _IOW( 'R', 0x03, int [2] )
 RNDADDENTROPY = 0x40085203
-SLEEP_TIME = 11
-RATIO = 0.1
+SLEEP_TIME = 0.11
+RATIO = 0.2
 READ_BYTES = 64
 
 ARANEUS_VID = 0x12D8
@@ -108,7 +108,8 @@ def main(debug=False):
     while True:
         data = read_random(alea)
         if debug:
-            print("{!s} -- Read {} bytes from device".format(time.ctime(), len(data)))
+            print("{!s} -- Read {} bytes from device ({!s}...)".format(
+                time.ctime(), len(data), data[:4].encode('hex')))
         feed_random(data)
         time.sleep(SLEEP_TIME)
 

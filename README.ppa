@@ -1,6 +1,6 @@
-To build this package and upload it to Launcpad team SUNET :
+To build this package and upload it to Launchpad team SUNET:
 
-debuild -S -sa -k0x$YOUR_PGP_ID
+debuild -I -S -sa -k0x$YOUR_PGP_ID
 dput -ol ppa:sunet/eduid ../araneus-rngd*_source.changes && \
      dput ppa:sunet/eduid ../araneus-rngd*_source.changes
 
