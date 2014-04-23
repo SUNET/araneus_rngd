@@ -46,7 +46,7 @@ import struct
 #define RNDADDENTROPY   _IOW( 'R', 0x03, int [2] )
 RNDADDENTROPY = 0x40085203
 SLEEP_TIME = 11
-RATIO = 0.1
+RATIO = 2        # number of bits per byte to tell the kernel to 'use'
 READ_BYTES = 64
 
 ARANEUS_VID = 0x12D8
@@ -93,6 +93,8 @@ def feed_random(data, ratio=RATIO):
           int     buf_size;
           __u32   buf[0];
        };
+
+    The `entropy_count' is a number of bits to tell the kernel to 'use' from `buf'.
     """
     fd = os.open("/dev/random", os.O_WRONLY)
     payload = struct.pack('ii{:}s'.format(len(data)), ratio * len(data), len(data), data)
