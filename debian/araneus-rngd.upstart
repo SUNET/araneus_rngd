@@ -17,5 +17,5 @@ pre-start script
 end script
 
 exec start-stop-daemon --start --pidfile $PIDFILE --make-pidfile \
-      --background --exec /usr/sbin/araneus_rngd -- \
+      --exec /usr/sbin/araneus_rngd -- \
      $ARANEUS_RNGD_ARGS
