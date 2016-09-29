@@ -2,7 +2,9 @@ Source: araneus-rngd
 Maintainer: eduID developers <eduid-dev@SEGATE.SUNET.SE>
 Section: python
 Priority: optional
-Build-Depends: debhelper (>= 7), python
+Build-Depends: debhelper (>= 7),
+	       dh-systemd (>= 1.3),
+	       python
 Standards-Version: 3.9.4
 XS-Python-Version: current
 

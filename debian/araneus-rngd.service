@@ -1,0 +1,14 @@
+[Unit]
+Description=Daemon for Araneus hwrng
+Wants=
+
+[Service]
+Restart=on-failure
+StartLimitInterval=20
+StartLimitBurst=5
+TimeoutStartSec=0
+EnvironmentFile=-/etc/default/araneus-rngd
+ExecStart=/usr/sbin/araneus_rngd $ARANEUS_RNGD_ARGS
+
+[Install]
+WantedBy=multi-user.target
