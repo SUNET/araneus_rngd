@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2014 SUNET. All rights reserved.
+# Copyright (c) 2014, 2016 SUNET. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are
 # permitted provided that the following conditions are met:
@@ -67,6 +67,11 @@ def open_device():
 	   if dev.idVendor == ARANEUS_VID and dev.idProduct == ARANEUS_PID:
         	alea = dev
 
+    if alea is None:
+        sys.stderr.write("No Araneus Alea I device found " \
+                             "(looked for USB VID 0x{:04x}, PID 0x{:04x})\n".format(ARANEUS_VID, ARANEUS_PID))
+        return None
+
     dh = alea.open()
     dh.claimInterface(0)
     return dh
@@ -105,6 +110,8 @@ def main(debug=False):
     Continuously read random data from hardware device, and feed it to the Linux kernel.
     """
     alea = open_device()
+    if alea is None:
+        return False
     while True:
         data = read_random(alea)
         if debug:
