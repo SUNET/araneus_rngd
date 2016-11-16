@@ -32,7 +32,7 @@ feed it to the Linux kernel.
 
 Use --debug to get simple debug output.
 
-Copyright (c) 2014 SUNET. All rights reserved.
+Copyright (c) 2014, 2016 SUNET. All rights reserved.
 See the source file for full license statement.
 """
 
@@ -46,7 +46,7 @@ import struct
 #define RNDADDENTROPY   _IOW( 'R', 0x03, int [2] )
 RNDADDENTROPY = 0x40085203
 SLEEP_TIME = 0.11
-RATIO = 0.2
+RATIO = 1        # number of bits per byte to tell the kernel to 'use'
 READ_BYTES = 64
 
 ARANEUS_VID = 0x12D8
@@ -98,6 +98,8 @@ def feed_random(data, ratio=RATIO):
           int     buf_size;
           __u32   buf[0];
        };
+
+    The `entropy_count' is a number of bits to tell the kernel to 'use' from `buf'.
     """
     fd = os.open("/dev/random", os.O_WRONLY)
     payload = struct.pack('ii{:}s'.format(len(data)), ratio * len(data), len(data), data)
@@ -114,6 +116,9 @@ def main(debug=False):
         return False
     while True:
         data = read_random(alea)
+        if not data:
+            sys.stderr.write("Failed reading random data from device, exiting.\n")
+            return False
         if debug:
             print("{!s} -- Read {} bytes from device ({!s}...)".format(
                 time.ctime(), len(data), data[:4].encode('hex')))
