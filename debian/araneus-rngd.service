@@ -1,5 +1,5 @@
 [Unit]
-Description=Daemon for Araneus hwrng
+Description=daemon for Araneus Alea I (Hardware Random Number Generator)
 Wants=
 
 [Service]
